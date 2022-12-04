@@ -1,8 +1,7 @@
 {
   "profiles": {
     "DirSearch": {
-      "commandName": "Project",
-      "commandLineArgs": "https://future-of-humanity.net/fuzz dir"
+      "commandName": "Project"
     }
   }
 }
