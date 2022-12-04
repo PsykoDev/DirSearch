@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Net;
 
 namespace DirSearch
 {
@@ -17,13 +15,7 @@ namespace DirSearch
 
         static object consoleLock = new object();
 
-        enum Scan
-        {
-            Dir,
-            Dns
-        }
-
-        private static async void TaskCallBack(Object ThreadNumber)
+        private static async void TaskCallBack(object ThreadNumber)
         {
             for (int task = 0; task < data.Length; task++)
             {
@@ -89,10 +81,10 @@ namespace DirSearch
             }
 
             WebRequest request = WebRequest.Create(tmpuri);
-            //Console.WriteLine(request.RequestUri);
             request.Method = "GET";
             request.Timeout = 10000;
             string test = String.Empty;
+            Interlocked.Increment(ref waitingForResponses);
             try
             {
                 using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
@@ -119,26 +111,20 @@ namespace DirSearch
                             lock (consoleLock)
                             {
                                 Console.WriteLine($"\t{data[task]} [{(int)response.StatusCode}] => {tmpuri}");
-                                Interlocked.Increment(ref waitingForResponses);
                             }
                             break;
                         case HttpStatusCode.NotFound:
                             lock (consoleLock)
                             {
                                 Console.WriteLine("404");
-                                Interlocked.Increment(ref waitingForResponses);
                             }
                             break;
                         default:
-                            Interlocked.Increment(ref waitingForResponses);
                             break;
                     }
                 }
             }
-            catch (Exception e)
-            {
-                Interlocked.Increment(ref waitingForResponses);
-            }
+            catch (Exception e) { }
 
             DecrementResponses();
         }
